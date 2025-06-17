@@ -60,19 +60,33 @@ button:focus-visible {
    }
 }
 
-.photos {
-  width: 100%;
-
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-.photo {
-   display: flex;
-   flex-direction: column;
+.pwa-install-button {
+   position: fixed;
+   bottom: 20px;
+   right: 20px;
+   padding: 12px 24px;
+   background: linear-gradient(135deg, #6e8efb, #a777e3);
+   color: white;
+   border: none;
+   border-radius: 50px;
+   font-size: 16px;
+   font-weight: 600;
+   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+   cursor: pointer;
+   display: flex !important;
    align-items: center;
+   gap: 8px;
+   z-index: 1000;
+   transition: all 0.3s ease;
+   opacity: 1 !important;
+   z-index: 9999;
 }
 
-.photo-name {
-  font-size: 24px;
+.pwa-install-button:hover {
+   transform: translateY(-2px);
+   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+}
+
+.pwa-install-button:active {
+   transform: translateY(1px);
 }

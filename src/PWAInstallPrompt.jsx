@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 
 export default function PWAInstallPrompt() {
    const [deferredPrompt, setDeferredPrompt] = useState(null);
-   const [isAppInstalled, setIsAppInstalled] = useState(false);
+   const [isInstalled, setIsInstalled] = useState(false);
+   const { updateServiceWorker } = useRegisterSW();
 
    useEffect(() => {
       const handler = e => {
@@ -12,36 +14,41 @@ export default function PWAInstallPrompt() {
 
       window.addEventListener('beforeinstallprompt', handler);
 
-      window.addEventListener('appinstalled', () => {
-         setIsAppInstalled(true);
-      });
+      const installedHandler = () => setIsInstalled(true);
+      window.addEventListener('appinstalled', installedHandler);
 
       return () => {
          window.removeEventListener('beforeinstallprompt', handler);
+         window.removeEventListener('appinstalled', installedHandler);
       };
    }, []);
 
-   const handleInstallClick = () => {
-      if (deferredPrompt) {
+   const handleInstallClick = async () => {
+      if (!deferredPrompt) return;
+
+      try {
          deferredPrompt.prompt();
-         deferredPrompt.userChoice.then(choiceResult => {
-            if (choiceResult.outcome === 'accepted') {
-               console.log('Пользователь установил PWA');
-            } else {
-               console.log('Пользователь отказался от установки');
-            }
+         const { outcome } = await deferredPrompt.userChoice;
+
+         if (outcome === 'accepted') {
+            console.log('Пользователь принял установку');
             setDeferredPrompt(null);
-         });
+         }
+      } catch (error) {
+         console.error('Ошибка при установке:', error);
       }
    };
 
-   if (isAppInstalled || !deferredPrompt) {
+   if (isInstalled || !deferredPrompt) {
       return null;
    }
 
    return (
-      <div className="pwa-install-banner">
-         <button onClick={handleInstallClick}>Установить приложение</button>
-      </div>
+      <button onClick={handleInstallClick} className="pwa-install-button" aria-label="Установить приложение">
+         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+         </svg>
+         Установить приложение
+      </button>
    );
 }
